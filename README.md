@@ -10,7 +10,7 @@ a straightforward walk-through of the md5 algorithm using
 Rust.
 
 This code was implemented using the original md5 message digest
-RFC, written by R. Rivest iin April 1992.
+RFC, written by R. Rivest in April 1992.
 
 For more information about the md5 algorithm, or the original C
 source code implementation, please reference RFC 1321.
