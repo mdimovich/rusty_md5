@@ -2,7 +2,12 @@
 name = "rusty_md5"
 version = "0.1.0"
 edition = "2021"
-
+description = "md5 message digest algorithm implementation using only standard library"
+readme = "README.md"
+authors = ["Michael Dimovich"]
+license = "MIT"
+keywords = ["md5", "message digest", "hash"]
+categories = ["command-line-utilities"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
