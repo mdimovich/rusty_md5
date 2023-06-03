@@ -1,6 +1,6 @@
-# rusty md5
+<h1 align="center">🦀 rusty md5 </h1>
 
-### 📝 description
+## 📝 Description
 This is a from scratch implementation of the md5 message digest algorithm using
 rust. 
 
@@ -15,10 +15,10 @@ RFC, written by R. Rivest iin April 1992.
 For more information about the md5 algorithm, or the original C
 source code implementation, please reference RFC 1321.
 
-*(source: https://datatracker.ietf.org/doc/html/rfc1321)*
+*(rfc source: https://datatracker.ietf.org/doc/html/rfc1321)*
 
 
-### ⚙️o to build / run locally
+## ⚙️ Build/Run Locally
 1. download the repo
 2. run `cargo build` inside the project
 3. run `cargo run <string_to_hash>` to get a md5 
