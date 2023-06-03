@@ -1,4 +1,6 @@
-# rusty md5: md5 message digest algorithm implemented using rust
+# rusty md5
+
+## md5 message digest algorithm implemented using rust
 
 ### description
 This is a from scratch implementation of the md5 message digest algorithm using
