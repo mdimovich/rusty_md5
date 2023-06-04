@@ -75,8 +75,8 @@ fn round_one_operations(
     mut b: u32,
     mut c: u32,
     mut d: u32,
-    table: Vec<u32>,
-    x: Vec<u32>,
+    table: &Vec<u32>,
+    x: &Vec<u32>,
 ) -> [u32; 4] {
     macro_rules! round1 {
         ( $a:ident, $b:ident, $c:ident, $d:ident, $k:expr, $s:expr, $i: expr ) => {
@@ -121,8 +121,8 @@ fn round_two_operations(
     mut b: u32,
     mut c: u32,
     mut d: u32,
-    table: Vec<u32>,
-    x: Vec<u32>,
+    table: &Vec<u32>,
+    x: &Vec<u32>,
 ) -> [u32; 4] {
     macro_rules! round2 {
         ( $a:ident, $b:ident, $c:ident, $d:ident, $k:expr, $s:expr, $i:expr) => {
@@ -167,8 +167,8 @@ fn round_three_operations(
     mut b: u32,
     mut c: u32,
     mut d: u32,
-    table: Vec<u32>,
-    x: Vec<u32>,
+    table: &Vec<u32>,
+    x: &Vec<u32>,
 ) -> [u32; 4] {
     macro_rules! round3 {
         ( $a:ident, $b:ident, $c:ident, $d:ident, $k:expr, $s:expr, $i:expr  ) => {
@@ -213,8 +213,8 @@ fn round_four_operations(
     mut b: u32,
     mut c: u32,
     mut d: u32,
-    table: Vec<u32>,
-    x: Vec<u32>,
+    table: &Vec<u32>,
+    x: &Vec<u32>,
 ) -> [u32; 4] {
     macro_rules! round4 {
         ( $a:ident, $b:ident, $c:ident, $d:ident, $k:expr, $s:expr, $i:expr ) => {
@@ -254,7 +254,7 @@ fn round_four_operations(
 * utility function to iterate over our slice of u8 ints
 * and convert into a vector of unsigned 32 bit ints
 */
-fn convert_u8_block_to_u32(block: &mut [u8]) -> Vec<u32> {
+fn convert_u8_chunk_to_u32(chunk: &mut [u8]) -> Vec<u32> {
     let mut x: Vec<u32> = Vec::new();
 
     let mut count = 0;
@@ -262,8 +262,8 @@ fn convert_u8_block_to_u32(block: &mut [u8]) -> Vec<u32> {
     // iterate over our block and take
     // our 8 bit ints and convert them to
     // 32 bit integers
-    for i in 0..block.len() {
-        temporary_vec.push(block[i]);
+    for i in 0..chunk.len() {
+        temporary_vec.push(chunk[i]);
         count += 1;
         if count == 4 {
             let temp_arr: [u8; 4] = vec_to_array(temporary_vec.clone());
@@ -288,8 +288,8 @@ fn compute_md5_digest(mut v: Vec<u8>) -> String {
     let table = construct_value_table();
 
     // let M[0 .. N-1] = words of resulting message, where N is multiple of 16
-    for block in v.chunks_exact_mut(64) {
-        let x = convert_u8_block_to_u32(block);
+    for chunk in v.chunks_exact_mut(64) {
+        let x = convert_u8_chunk_to_u32(chunk);
 
         // set all values of a,b,c,d to aa,bb,cc, and dd respectively.
         // this is to save the initial values.
@@ -299,14 +299,14 @@ fn compute_md5_digest(mut v: Vec<u8>) -> String {
         let word_dd = word_d;
 
         // execute round 1
-        let result = round_one_operations(word_a, word_b, word_c, word_d, table.clone(), x.clone());
+        let result = round_one_operations(word_a, word_b, word_c, word_d, &table, &x);
         word_a = result[0];
         word_b = result[1];
         word_c = result[2];
         word_d = result[3];
 
         // execute round 2
-        let result = round_two_operations(word_a, word_b, word_c, word_d, table.clone(), x.clone());
+        let result = round_two_operations(word_a, word_b, word_c, word_d, &table, &x);
 
         word_a = result[0];
         word_b = result[1];
@@ -314,16 +314,14 @@ fn compute_md5_digest(mut v: Vec<u8>) -> String {
         word_d = result[3];
 
         // execute round 3
-        let result =
-            round_three_operations(word_a, word_b, word_c, word_d, table.clone(), x.clone());
+        let result = round_three_operations(word_a, word_b, word_c, word_d, &table, &x);
         word_a = result[0];
         word_b = result[1];
         word_c = result[2];
         word_d = result[3];
 
         // execute round 4
-        let result =
-            round_four_operations(word_a, word_b, word_c, word_d, table.clone(), x.clone());
+        let result = round_four_operations(word_a, word_b, word_c, word_d, &table, &x);
         word_a = result[0];
         word_b = result[1];
         word_c = result[2];
@@ -346,7 +344,6 @@ fn compute_md5_digest(mut v: Vec<u8>) -> String {
         word_c.swap_bytes(),
         word_d.swap_bytes()
     );
-
     return message_digest;
 }
 
@@ -372,16 +369,14 @@ fn bit_padding(input: &str) -> Vec<u8> {
                                  // result is reached;
     }
 
-    // length is required to be appended in little-endian order
-    let reversed_bit_slice = reverse_u64_bits(bit_length);
-
-    input_vector.extend_from_slice(&reversed_bit_slice);
+    let length_bits_as_u8_array = split_u64_to_u8_array(bit_length);
+    input_vector.extend(length_bits_as_u8_array);
 
     return input_vector;
 }
 
-fn reverse_u64_bits(s: u64) -> [u8; 8] {
-    let u8_slice = [
+fn split_u64_to_u8_array(s: u64) -> [u8; 8] {
+    let u8_array = [
         s as u8,
         (s >> 8) as u8,
         (s >> 16) as u8,
@@ -391,7 +386,7 @@ fn reverse_u64_bits(s: u64) -> [u8; 8] {
         (s >> 48) as u8,
         (s >> 56) as u8,
     ];
-    return u8_slice;
+    return u8_array;
 }
 
 fn construct_value_table() -> Vec<u32> {
